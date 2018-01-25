@@ -14,6 +14,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class QemuRunConfiguration extends RunConfigurationBase {
 
+    private String cdromFile;
+
     QemuRunConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory, String name) {
         super(project, factory, name);
     }
@@ -21,14 +23,13 @@ public class QemuRunConfiguration extends RunConfigurationBase {
     @NotNull
     @Override
     public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
-        return new QemuRunConfigurationEditor();
+        return new QemuRunConfigurationEditor(getProject());
     }
 
     @Nullable
     @Override
     public RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment env) throws ExecutionException {
-        GeneralCommandLine commandLine = new GeneralCommandLine("qemu-system-x86_64",
-                "-s", "-S", "-cdrom", "/home/merskip/Workspace/PiomekOS/cmake-build-debug/PiomekOS.iso");
+        GeneralCommandLine commandLine = new GeneralCommandLine("qemu-system-x86_64", "-s", "-S", "-cdrom", cdromFile);
         Process process = commandLine.createProcess();
 
         System.out.println(process.isAlive());
@@ -38,6 +39,13 @@ public class QemuRunConfiguration extends RunConfigurationBase {
         nopProcessHandler.destroyProcess();
 
         return (executor1, programRunner) -> executionResult;
+    }
 
+    public String getCdromFile() {
+        return cdromFile;
+    }
+
+    public void setCdromFile(String cdromFile) {
+        this.cdromFile = cdromFile;
     }
 }
