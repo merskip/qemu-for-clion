@@ -11,9 +11,14 @@
        on how to target different products -->
   <depends>com.intellij.modules.clion</depends>
 
+  <extensions defaultExtensionNs="cidr.debugger">
+    <languageSupportFactory implementation="pl.merskip.qemu.QemuDebuggerLanguageSupportFactory"/>
+  </extensions>
+
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
-      <configurationType implementation="pl.merskip.qemu.QemuConfigurationType"/>
+    <configurationType implementation="pl.merskip.qemu.QemuConfigurationType"/>
+    <programRunner implementation="pl.merskip.qemu.QemuRunner"/>
   </extensions>
 
 </idea-plugin>

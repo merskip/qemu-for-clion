@@ -4,22 +4,27 @@ import com.intellij.execution.DefaultExecutionResult;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.Executor;
+import com.intellij.execution.actions.BaseRunConfigurationAction;
 import com.intellij.execution.configurations.*;
+import com.intellij.execution.executors.DefaultDebugExecutor;
+import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.execution.process.NopProcessHandler;
-import com.intellij.execution.runners.DebuggableRunProfileState;
-import com.intellij.execution.runners.ExecutionEnvironment;
-import com.intellij.execution.runners.ProgramRunner;
-import com.intellij.execution.runners.RunConfigurationWithSuppressedDefaultRunAction;
+import com.intellij.execution.runners.*;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.InvalidDataException;
+import com.intellij.openapi.util.WriteExternalException;
 import com.jetbrains.cidr.execution.CidrCommandLineState;
 import com.jetbrains.cidr.execution.CidrRunProfile;
+import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.concurrency.Promise;
 
+import javax.swing.*;
 
-public class QemuRunConfiguration extends RunConfigurationBase implements CidrRunProfile {
+
+public class QemuRunConfiguration extends RunConfigurationBase {
 
     private String cdromFile;
 
@@ -43,8 +48,15 @@ public class QemuRunConfiguration extends RunConfigurationBase implements CidrRu
 
     @Nullable
     @Override
-    public CidrCommandLineState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment executionEnvironment) {
-        QemuLauncher qemuLauncher = new QemuLauncher(getProject());
-        return new CidrCommandLineState(executionEnvironment, qemuLauncher);
+    public RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment environment) {
+        if (executor instanceof DefaultRunExecutor) {
+            return new QemuRunProfileState(environment);
+        }
+        else if (executor instanceof DefaultDebugExecutor) {
+            return new QemuDebugProfileState(environment);
+        }
+        else {
+            return null;
+        }
     }
 }
