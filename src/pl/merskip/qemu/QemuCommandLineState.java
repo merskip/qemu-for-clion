@@ -25,13 +25,13 @@ import java.io.File;
 import java.io.OutputStream;
 import java.util.Collections;
 
-public abstract class QemuProfileStateBase extends CommandLineState {
+public class QemuCommandLineState extends CommandLineState {
 
     protected ProcessHandler mainProcess;
     protected ProcessHandler cmakeProcess;
     protected ProcessHandler runQemuProcess;
 
-    protected QemuProfileStateBase(ExecutionEnvironment environment) {
+    protected QemuCommandLineState(ExecutionEnvironment environment) {
         super(environment);
     }
 
@@ -47,8 +47,7 @@ public abstract class QemuProfileStateBase extends CommandLineState {
         if (productFile == null) {
             throw new ExecutionException("Product file for default configuration is null");
         }
-
-        onRunQemu();
+        
         cmakeProcess = new CMakeBuildProcess(getEnvironment().getProject(), cmakeConfiguration);
         cmakeProcess.addProcessListener(new ProcessAdapter() {
 
@@ -69,11 +68,10 @@ public abstract class QemuProfileStateBase extends CommandLineState {
             private void performNextActionAfter(ProcessHandler terminatedProcess) throws ExecutionException {
                 if (terminatedProcess == cmakeProcess) {
 
-                    GeneralCommandLine commandLine = createRunQemuCommandLine(productFile, isDebug());
+                    GeneralCommandLine commandLine = createRunQemuCommandLine(productFile, false);
                     runQemuProcess = ProcessHandlerFactory.getInstance().createProcessHandler(commandLine);
                     runQemuProcess.addProcessListener(this);
                     runQemuProcess.startNotify(); // Without this events for process listener will not perform. Is it bug?
-
                 }
                 else if (terminatedProcess == runQemuProcess) {
                     mainProcess.destroyProcess();
@@ -130,24 +128,6 @@ public abstract class QemuProfileStateBase extends CommandLineState {
             }
         };
         return mainProcess;
-    }
-
-    protected void onRunQemu() throws ExecutionException {
-
-    }
-
-    abstract boolean isDebug();
-
-    protected CidrRemoteGDBDebugProcess createRemoteGDBProcess(String remoteCommand, String symbolFile, XDebugSession xDebugSession) throws ExecutionException {
-        CPPToolchains.Toolchain toolchain = CPPToolchains.getInstance().getDefaultToolchain();
-        if (toolchain == null) {
-            throw new IllegalStateException("No default toolchain");
-        }
-        GDBDriverConfiguration debuggerConfiguration = new GDBDriverConfiguration(getEnvironment().getProject(), toolchain);
-        CidrRemoteDebugParameters debugParameters = new CidrRemoteDebugParameters(remoteCommand, symbolFile,"", Collections.emptyList());
-        TextConsoleBuilder textConsoleBuilder = TextConsoleBuilderFactory.getInstance().createBuilder(getEnvironment().getProject());
-
-        return new CidrRemoteGDBDebugProcess(debuggerConfiguration, debugParameters, xDebugSession, textConsoleBuilder);
     }
 
     @Nullable

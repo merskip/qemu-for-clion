@@ -17,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 public class QemuRunner extends GenericProgramRunner {
 
     public static final String RUN_EXECUTOR = DefaultRunExecutor.EXECUTOR_ID;
-    public static final String DEBUG_EXECUTOR = DefaultDebugExecutor.EXECUTOR_ID;
 
     @NotNull
     @Override
@@ -28,7 +27,7 @@ public class QemuRunner extends GenericProgramRunner {
     @Override
     public boolean canRun(@NotNull String executorId, @NotNull RunProfile runProfile) {
         return runProfile instanceof QemuRunConfiguration
-                && (executorId.equals(RUN_EXECUTOR) || executorId.equals(DEBUG_EXECUTOR));
+                && (executorId.equals(RUN_EXECUTOR));
     }
 
     @Override
