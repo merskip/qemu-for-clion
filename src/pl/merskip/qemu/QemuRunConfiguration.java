@@ -22,8 +22,8 @@ public class QemuRunConfiguration extends RunConfigurationBase {
     }
 
     private DiskImageSource diskImageSource = DiskImageSource.File;
-    private String cdromFile;
-    private CMakeTarget cmakeTarget;
+    @NotNull private String cdromFile = "";
+    @Nullable private CMakeTarget cmakeTarget;
 
     QemuRunConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory, String name) {
         super(project, factory, name);
@@ -39,7 +39,7 @@ public class QemuRunConfiguration extends RunConfigurationBase {
     @Override
     public RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment environment) {
         if (executor instanceof DefaultRunExecutor) {
-            return new QemuCommandLineState(environment) {
+            return new QemuCommandLineState(environment, this) {
             };
         }
         else {
@@ -57,19 +57,21 @@ public class QemuRunConfiguration extends RunConfigurationBase {
         this.diskImageSource = diskImageSource;
     }
 
+    @NotNull
     public String getCdromFile() {
         return cdromFile;
     }
 
-    public void setCdromFile(String cdromFile) {
+    public void setCdromFile(@NotNull String cdromFile) {
         this.cdromFile = cdromFile;
     }
 
+    @Nullable
     public CMakeTarget getCmakeTarget() {
         return cmakeTarget;
     }
 
-    public void setCmakeTarget(CMakeTarget cmakeTarget) {
+    public void setCmakeTarget(@Nullable CMakeTarget cmakeTarget) {
         this.cmakeTarget = cmakeTarget;
     }
 }
