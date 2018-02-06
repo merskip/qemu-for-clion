@@ -21,6 +21,7 @@ public class QemuRunConfiguration extends RunConfigurationBase {
         CMakeTarget
     }
 
+    private String qemuCommand = "qemu-system-x86_64";
     private DiskImageSource diskImageSource = DiskImageSource.File;
     @NotNull private String cdromFile = "";
     @Nullable private CMakeTarget cmakeTarget;
@@ -51,6 +52,14 @@ public class QemuRunConfiguration extends RunConfigurationBase {
     }
 
     // Getters/Setters
+
+    public String getQemuCommand() {
+        return qemuCommand;
+    }
+
+    public void setQemuCommand(String qemuCommand) {
+        this.qemuCommand = qemuCommand;
+    }
 
     public DiskImageSource getDiskImageSource() {
         return diskImageSource;

@@ -115,7 +115,7 @@ public class QemuCommandLineState extends CommandLineState {
 
 
     private GeneralCommandLine createRunQemuCommandLine(File diskImageFile) {
-        GeneralCommandLine commandLine = new GeneralCommandLine("qemu-system-x86_64");
+        GeneralCommandLine commandLine = new GeneralCommandLine(configuration.getQemuCommand());
         commandLine.addParameters("-cdrom", diskImageFile.getAbsolutePath());
 
         if (configuration.isEnableGDB()) {

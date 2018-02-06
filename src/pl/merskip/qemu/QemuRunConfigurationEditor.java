@@ -26,6 +26,7 @@ public class QemuRunConfigurationEditor extends SettingsEditor<QemuRunConfigurat
     private JCheckBox enableGDBCheckBox;
     private JTextField tcpPortField;
     private JCheckBox waitForDebuggerCheckBox;
+    private TextFieldWithBrowseButton qemuCommandField;
 
     public QemuRunConfigurationEditor(Project project) {
         this.project = project;
@@ -33,6 +34,7 @@ public class QemuRunConfigurationEditor extends SettingsEditor<QemuRunConfigurat
 
     @Override
     protected void resetEditorFrom(@NotNull QemuRunConfiguration configuration) {
+        qemuCommandField.setText(configuration.getQemuCommand());
         cdromFileField.setText(configuration.getCdromFile());
         cmakeTargetComboBox.setSelectedItem(configuration.getCmakeTarget());
 
@@ -52,6 +54,7 @@ public class QemuRunConfigurationEditor extends SettingsEditor<QemuRunConfigurat
 
     @Override
     protected void applyEditorTo(@NotNull QemuRunConfiguration configuration) {
+        configuration.setQemuCommand(qemuCommandField.getText());
         configuration.setCdromFile(cdromFileField.getText());
         configuration.setCmakeTarget((CMakeTarget) cmakeTargetComboBox.getSelectedItem());
 
@@ -74,6 +77,9 @@ public class QemuRunConfigurationEditor extends SettingsEditor<QemuRunConfigurat
     @NotNull
     @Override
     protected JComponent createEditor() {
+        qemuCommandField.addBrowseFolderListener(
+                new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleLocalFileDescriptor(), project)
+        );
         cdromFileField.addBrowseFolderListener(
                 new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileDescriptor(), project)
         );
