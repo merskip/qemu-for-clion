@@ -1,15 +1,16 @@
 <idea-plugin>
-  <id>qemu</id>
-  <name>QEMU for CLion</name>
-  <description>Plugin for Clion helps run of QEMU emulator.</description>
-  <version>1.0</version>
-  <vendor email="merskip@gmail.com">Piotr Merski</vendor>
+    <id>qemu</id>
+    <name>QEMU for CLion</name>
+    <description>Plugin for Clion helps run of QEMU emulator.</description>
+    <version>1.0</version>
+    <vendor email="merskip@gmail.com">Piotr Merski</vendor>
 
-  <depends>com.intellij.modules.clion</depends>
+    <depends>com.intellij.modules.clion</depends>
+    <idea-version since-build="173"/>
 
-  <extensions defaultExtensionNs="com.intellij">
-    <configurationType implementation="pl.merskip.qemu.QemuConfigurationType"/>
-    <programRunner implementation="pl.merskip.qemu.QemuRunner"/>
-  </extensions>
+    <extensions defaultExtensionNs="com.intellij">
+        <configurationType implementation="pl.merskip.qemu.QemuConfigurationType"/>
+        <programRunner implementation="pl.merskip.qemu.QemuRunner"/>
+    </extensions>
 
 </idea-plugin>
