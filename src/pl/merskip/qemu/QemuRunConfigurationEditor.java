@@ -23,17 +23,20 @@ public class QemuRunConfigurationEditor extends SettingsEditor<QemuRunConfigurat
     private JRadioButton cdromRadioBtn;
     private JRadioButton cmakeTargetRadioBtn;
     private ComboBox<CMakeTarget> cmakeTargetComboBox;
+    private JCheckBox enableGDBCheckBox;
+    private JTextField tcpPortField;
+    private JCheckBox waitForDebuggerCheckBox;
 
     public QemuRunConfigurationEditor(Project project) {
         this.project = project;
     }
 
     @Override
-    protected void resetEditorFrom(@NotNull QemuRunConfiguration qemuRunConfiguration) {
-        cdromFileField.setText(qemuRunConfiguration.getCdromFile());
-        cmakeTargetComboBox.setSelectedItem(qemuRunConfiguration.getCmakeTarget());
+    protected void resetEditorFrom(@NotNull QemuRunConfiguration configuration) {
+        cdromFileField.setText(configuration.getCdromFile());
+        cmakeTargetComboBox.setSelectedItem(configuration.getCmakeTarget());
 
-        switch (qemuRunConfiguration.getDiskImageSource()) {
+        switch (configuration.getDiskImageSource()) {
             case File:
                 cdromRadioBtn.setSelected(true);
                 break;
@@ -41,19 +44,31 @@ public class QemuRunConfigurationEditor extends SettingsEditor<QemuRunConfigurat
                 cmakeTargetRadioBtn.setSelected(true);
                 break;
         }
+
+        enableGDBCheckBox.setSelected(configuration.isEnableGDB());
+        tcpPortField.setText(String.valueOf(configuration.getTcpPort()));
+        waitForDebuggerCheckBox.setSelected(configuration.isWaitForDebugger());
     }
 
     @Override
-    protected void applyEditorTo(@NotNull QemuRunConfiguration qemuRunConfiguration) {
-        qemuRunConfiguration.setCdromFile(cdromFileField.getText());
-        qemuRunConfiguration.setCmakeTarget((CMakeTarget) cmakeTargetComboBox.getSelectedItem());
+    protected void applyEditorTo(@NotNull QemuRunConfiguration configuration) {
+        configuration.setCdromFile(cdromFileField.getText());
+        configuration.setCmakeTarget((CMakeTarget) cmakeTargetComboBox.getSelectedItem());
 
         if (cdromRadioBtn.isSelected()) {
-            qemuRunConfiguration.setDiskImageSource(QemuRunConfiguration.DiskImageSource.File);
+            configuration.setDiskImageSource(QemuRunConfiguration.DiskImageSource.File);
         }
         else if (cmakeTargetRadioBtn.isSelected()) {
-            qemuRunConfiguration.setDiskImageSource(QemuRunConfiguration.DiskImageSource.CMakeTarget);
+            configuration.setDiskImageSource(QemuRunConfiguration.DiskImageSource.CMakeTarget);
         }
+
+        configuration.setEnableGDB(enableGDBCheckBox.isSelected());
+        try {
+            configuration.setTcpPort(Integer.parseInt(tcpPortField.getText()));
+        } catch (NumberFormatException e) {
+            // Nothing, just no change port in model
+        }
+        configuration.setWaitForDebugger(waitForDebuggerCheckBox.isSelected());
     }
 
     @NotNull

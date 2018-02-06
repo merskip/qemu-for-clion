@@ -24,6 +24,9 @@ public class QemuRunConfiguration extends RunConfigurationBase {
     private DiskImageSource diskImageSource = DiskImageSource.File;
     @NotNull private String cdromFile = "";
     @Nullable private CMakeTarget cmakeTarget;
+    private boolean enableGDB = false;
+    private int tcpPort = 1234;
+    private boolean waitForDebugger = true;
 
     QemuRunConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory, String name) {
         super(project, factory, name);
@@ -73,5 +76,29 @@ public class QemuRunConfiguration extends RunConfigurationBase {
 
     public void setCmakeTarget(@Nullable CMakeTarget cmakeTarget) {
         this.cmakeTarget = cmakeTarget;
+    }
+
+    public boolean isEnableGDB() {
+        return enableGDB;
+    }
+
+    public void setEnableGDB(boolean enableGDB) {
+        this.enableGDB = enableGDB;
+    }
+
+    public int getTcpPort() {
+        return tcpPort;
+    }
+
+    public void setTcpPort(int tcpPort) {
+        this.tcpPort = tcpPort;
+    }
+
+    public boolean isWaitForDebugger() {
+        return waitForDebugger;
+    }
+
+    public void setWaitForDebugger(boolean waitForDebugger) {
+        this.waitForDebugger = waitForDebugger;
     }
 }
