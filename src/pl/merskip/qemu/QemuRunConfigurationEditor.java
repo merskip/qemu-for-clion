@@ -3,17 +3,26 @@ package pl.merskip.qemu;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextBrowseFolderListener;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.ui.ListCellRendererWithRightAlignedComponent;
+import com.jetbrains.cidr.cpp.cmake.model.CMakeTarget;
+import com.jetbrains.cidr.cpp.execution.CMakeBuildConfigurationHelper;
+import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.List;
 
 public class QemuRunConfigurationEditor extends SettingsEditor<QemuRunConfiguration> {
 
     private Project project;
     private JPanel panel;
     private TextFieldWithBrowseButton cdromFileField;
+    private JRadioButton cdromRadioBtn;
+    private JRadioButton cmakeTargetRadioBtn;
+    private ComboBox<CMakeTarget> cmakeTargetComboBox;
 
     public QemuRunConfigurationEditor(Project project) {
         this.project = project;
@@ -22,11 +31,29 @@ public class QemuRunConfigurationEditor extends SettingsEditor<QemuRunConfigurat
     @Override
     protected void resetEditorFrom(@NotNull QemuRunConfiguration qemuRunConfiguration) {
         cdromFileField.setText(qemuRunConfiguration.getCdromFile());
+        cmakeTargetComboBox.setSelectedItem(qemuRunConfiguration.getCmakeTarget());
+
+        switch (qemuRunConfiguration.getDiskImageSource()) {
+            case File:
+                cdromRadioBtn.setSelected(true);
+                break;
+            case CMakeTarget:
+                cmakeTargetRadioBtn.setSelected(true);
+                break;
+        }
     }
 
     @Override
     protected void applyEditorTo(@NotNull QemuRunConfiguration qemuRunConfiguration) {
         qemuRunConfiguration.setCdromFile(cdromFileField.getText());
+        qemuRunConfiguration.setCmakeTarget((CMakeTarget) cmakeTargetComboBox.getSelectedItem());
+
+        if (cdromRadioBtn.isSelected()) {
+            qemuRunConfiguration.setDiskImageSource(QemuRunConfiguration.DiskImageSource.File);
+        }
+        else if (cmakeTargetRadioBtn.isSelected()) {
+            qemuRunConfiguration.setDiskImageSource(QemuRunConfiguration.DiskImageSource.CMakeTarget);
+        }
     }
 
     @NotNull
@@ -36,6 +63,23 @@ public class QemuRunConfigurationEditor extends SettingsEditor<QemuRunConfigurat
                 new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileDescriptor(), project)
         );
 
+        List<CMakeTarget> targets = new CMakeBuildConfigurationHelper(project).getTargets();
+        //noinspection unchecked
+        cmakeTargetComboBox.setModel(new ListComboBoxModel<>(targets));
+        //noinspection unchecked,GtkPreferredJComboBoxRenderer
+        cmakeTargetComboBox.setRenderer(new CMakeTargetCellRenderer());
+
         return panel;
+    }
+
+    class CMakeTargetCellRenderer extends ListCellRendererWithRightAlignedComponent<CMakeTarget> {
+
+        @Override
+        protected void customize(CMakeTarget cMakeTarget) {
+            if (cMakeTarget != null) {
+                setIcon(cMakeTarget.getIcon());
+                setLeftText(cMakeTarget.getName());
+            }
+        }
     }
 }

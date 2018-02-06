@@ -1,32 +1,29 @@
 package pl.merskip.qemu;
 
-import com.intellij.execution.DefaultExecutionResult;
-import com.intellij.execution.ExecutionException;
-import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.Executor;
-import com.intellij.execution.actions.BaseRunConfigurationAction;
-import com.intellij.execution.configurations.*;
-import com.intellij.execution.executors.DefaultDebugExecutor;
+import com.intellij.execution.configurations.ConfigurationFactory;
+import com.intellij.execution.configurations.RunConfiguration;
+import com.intellij.execution.configurations.RunConfigurationBase;
+import com.intellij.execution.configurations.RunProfileState;
 import com.intellij.execution.executors.DefaultRunExecutor;
-import com.intellij.execution.process.NopProcessHandler;
-import com.intellij.execution.runners.*;
+import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.WriteExternalException;
-import com.jetbrains.cidr.execution.CidrCommandLineState;
-import com.jetbrains.cidr.execution.CidrRunProfile;
-import org.jdom.Element;
+import com.jetbrains.cidr.cpp.cmake.model.CMakeTarget;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.concurrency.Promise;
-
-import javax.swing.*;
 
 
 public class QemuRunConfiguration extends RunConfigurationBase {
 
+    public enum DiskImageSource {
+        File,
+        CMakeTarget
+    }
+
+    private DiskImageSource diskImageSource = DiskImageSource.File;
     private String cdromFile;
+    private CMakeTarget cmakeTarget;
 
     QemuRunConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory, String name) {
         super(project, factory, name);
@@ -36,14 +33,6 @@ public class QemuRunConfiguration extends RunConfigurationBase {
     @Override
     public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
         return new QemuRunConfigurationEditor(getProject());
-    }
-
-    public String getCdromFile() {
-        return cdromFile;
-    }
-
-    public void setCdromFile(String cdromFile) {
-        this.cdromFile = cdromFile;
     }
 
     @Nullable
@@ -56,5 +45,31 @@ public class QemuRunConfiguration extends RunConfigurationBase {
         else {
             return null;
         }
+    }
+
+    // Getters/Setters
+
+    public DiskImageSource getDiskImageSource() {
+        return diskImageSource;
+    }
+
+    public void setDiskImageSource(DiskImageSource diskImageSource) {
+        this.diskImageSource = diskImageSource;
+    }
+
+    public String getCdromFile() {
+        return cdromFile;
+    }
+
+    public void setCdromFile(String cdromFile) {
+        this.cdromFile = cdromFile;
+    }
+
+    public CMakeTarget getCmakeTarget() {
+        return cmakeTarget;
+    }
+
+    public void setCmakeTarget(CMakeTarget cmakeTarget) {
+        this.cmakeTarget = cmakeTarget;
     }
 }
