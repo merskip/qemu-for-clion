@@ -5,6 +5,7 @@ import com.intellij.execution.configurations.CommandLineState;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.process.*;
 import com.intellij.execution.runners.ExecutionEnvironment;
+import com.intellij.openapi.util.Key;
 import com.jetbrains.cidr.cpp.cmake.model.CMakeConfiguration;
 import com.jetbrains.cidr.cpp.cmake.model.CMakeTarget;
 import com.jetbrains.cidr.cpp.execution.CMakeBuildConfigurationHelper;
@@ -30,15 +31,6 @@ public class QemuCommandLineState extends CommandLineState {
     @NotNull
     @Override
     protected ProcessHandler startProcess() throws ExecutionException {
-        switch (configuration.getDiskImageSource()) {
-            case File:
-                onDiskImageReady(new File(configuration.getCdromFile()));
-                break;
-            case CMakeTarget:
-                cmakeProcess = startBuildCMake();
-                break;
-        }
-
         mainProcess = new NopProcessHandler() {
 
             @Override
@@ -56,6 +48,16 @@ public class QemuCommandLineState extends CommandLineState {
                 }
             }
         };
+
+        switch (configuration.getDiskImageSource()) {
+            case File:
+                onDiskImageReady(new File(configuration.getCdromFile()));
+                break;
+            case CMakeTarget:
+                cmakeProcess = startBuildCMake();
+                break;
+        }
+
         return mainProcess;
     }
 
@@ -67,7 +69,18 @@ public class QemuCommandLineState extends CommandLineState {
             qemuProcess.addProcessListener(new ProcessAdapter() {
                 @Override
                 public void processTerminated(@NotNull ProcessEvent event) {
-                    mainProcess.destroyProcess();
+                    if (event.getExitCode() != 0) {
+                        onProcessFailure();
+                    }
+                    else {
+                        mainProcess.destroyProcess();
+                    }
+                }
+
+                @Override
+                public void onTextAvailable(@NotNull ProcessEvent event, @NotNull Key outputType) {
+                    super.onTextAvailable(event, outputType);
+                    mainProcess.notifyTextAvailable(event.getText(), outputType);
                 }
             });
             qemuProcess.startNotify(); // Without this events for process listener will not perform. Is it bug?
@@ -122,6 +135,9 @@ public class QemuCommandLineState extends CommandLineState {
             commandLine.addParameters("-gdb", "tcp::" + configuration.getTcpPort());
             if (configuration.isWaitForDebugger()) {
                 commandLine.addParameter("-S");
+            }
+            if (configuration.isDeamonize()) {
+                commandLine.addParameter("-daemonize");
             }
         }
         return commandLine;

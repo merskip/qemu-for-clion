@@ -28,6 +28,7 @@ public class QemuRunConfiguration extends RunConfigurationBase {
     private boolean enableGDB = false;
     private int tcpPort = 1234;
     private boolean waitForDebugger = true;
+    private  boolean deamonize = false;
 
     QemuRunConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory, String name) {
         super(project, factory, name);
@@ -109,5 +110,13 @@ public class QemuRunConfiguration extends RunConfigurationBase {
 
     public void setWaitForDebugger(boolean waitForDebugger) {
         this.waitForDebugger = waitForDebugger;
+    }
+
+    public boolean isDeamonize() {
+        return deamonize;
+    }
+
+    public void setDeamonize(boolean deamonize) {
+        this.deamonize = deamonize;
     }
 }

@@ -27,6 +27,7 @@ public class QemuRunConfigurationEditor extends SettingsEditor<QemuRunConfigurat
     private JTextField tcpPortField;
     private JCheckBox waitForDebuggerCheckBox;
     private TextFieldWithBrowseButton qemuCommandField;
+    private JCheckBox daemonizeCheckBox;
 
     public QemuRunConfigurationEditor(Project project) {
         this.project = project;
@@ -50,6 +51,7 @@ public class QemuRunConfigurationEditor extends SettingsEditor<QemuRunConfigurat
         enableGDBCheckBox.setSelected(configuration.isEnableGDB());
         tcpPortField.setText(String.valueOf(configuration.getTcpPort()));
         waitForDebuggerCheckBox.setSelected(configuration.isWaitForDebugger());
+        daemonizeCheckBox.setSelected(configuration.isDeamonize());
     }
 
     @Override
@@ -72,6 +74,7 @@ public class QemuRunConfigurationEditor extends SettingsEditor<QemuRunConfigurat
             // Nothing, just no change port in model
         }
         configuration.setWaitForDebugger(waitForDebuggerCheckBox.isSelected());
+        configuration.setDeamonize(daemonizeCheckBox.isSelected());
     }
 
     @NotNull
