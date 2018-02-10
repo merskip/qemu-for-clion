@@ -44,8 +44,7 @@ public class QemuRunConfiguration extends RunConfigurationBase {
     @Override
     public RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment environment) {
         if (executor instanceof DefaultRunExecutor) {
-            return new QemuCommandLineState(environment, this) {
-            };
+            return new QemuCommandLineState(environment, this);
         }
         else {
             return null;

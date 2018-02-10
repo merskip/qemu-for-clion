@@ -1,6 +1,7 @@
 package pl.merskip.qemu;
 
 import com.intellij.execution.ExecutionException;
+import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.configurations.CommandLineState;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.process.*;
@@ -12,6 +13,10 @@ import com.jetbrains.cidr.cpp.execution.CMakeBuildConfigurationHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Optional;
+import java.util.Scanner;
 
 public class QemuCommandLineState extends CommandLineState {
 
@@ -23,6 +28,16 @@ public class QemuCommandLineState extends CommandLineState {
 
     private boolean processFailure = false;
 
+    private static File qemuPidFile;
+
+    static {
+        try {
+            qemuPidFile = File.createTempFile("clion-qemu-", ".pid");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     protected QemuCommandLineState(ExecutionEnvironment environment, QemuRunConfiguration configuration) {
         super(environment);
         this.configuration = configuration;
@@ -31,6 +46,10 @@ public class QemuCommandLineState extends CommandLineState {
     @NotNull
     @Override
     protected ProcessHandler startProcess() throws ExecutionException {
+        if (isSingleton()) {
+            killPreviousQemuProcess();
+        }
+
         mainProcess = new NopProcessHandler() {
 
             @Override
@@ -83,6 +102,7 @@ public class QemuCommandLineState extends CommandLineState {
                     mainProcess.notifyTextAvailable(event.getText(), outputType);
                 }
             });
+
             qemuProcess.startNotify(); // Without this events for process listener will not perform. Is it bug?
         } catch (ExecutionException e) {
             e.printStackTrace();
@@ -140,6 +160,33 @@ public class QemuCommandLineState extends CommandLineState {
                 commandLine.addParameter("-daemonize");
             }
         }
+        commandLine.addParameters("-pidfile", qemuPidFile.getAbsolutePath());
         return commandLine;
+    }
+
+    private void killPreviousQemuProcess() {
+        Optional<Integer> pid = readQemuPid();
+        pid.ifPresent(OSProcessUtil::killProcess);
+    }
+
+    private Optional<Integer> readQemuPid() {
+        try {
+            Scanner scanner = new Scanner(qemuPidFile);
+
+            if (scanner.hasNextInt()) {
+                return Optional.of(scanner.nextInt());
+            }
+            else {
+                return Optional.empty();
+            }
+        }
+        catch (FileNotFoundException e) {
+            return Optional.empty();
+        }
+    }
+
+    private boolean isSingleton() {
+        RunnerAndConfigurationSettings configurationSettings = getEnvironment().getRunnerAndConfigurationSettings();
+        return configurationSettings != null && configurationSettings.isSingleton();
     }
 }
