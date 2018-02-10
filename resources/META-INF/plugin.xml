@@ -3,7 +3,7 @@
     <name>QEMU for CLion</name>
     <description>Plugin for CLion helps run of QEMU emulator.</description>
     <version>1.1</version>
-    <vendor email="merskip@gmail.com">Piotr Merski</vendor>
+    <vendor email="merskip@gmail.com" url="https://github.com/merskip">Piotr Merski</vendor>
 
     <depends>com.intellij.modules.clion</depends>
     <idea-version since-build="173"/>
