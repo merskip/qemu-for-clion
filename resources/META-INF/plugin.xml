@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>qemu</id>
     <name>QEMU for CLion</name>
-    <description>Plugin for Clion helps run of QEMU emulator.</description>
+    <description>Plugin for CLion helps run of QEMU emulator.</description>
     <version>1.0</version>
     <vendor email="merskip@gmail.com">Piotr Merski</vendor>
 
